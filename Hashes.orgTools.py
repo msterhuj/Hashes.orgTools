@@ -54,7 +54,7 @@ def main(download: bool, merge: bool, clean: bool, output: str):
                 with open(url, "rb") as infile:
                     outfile.write(infile.read())
 
-    if clean:
+    if clean:  # make this function less ram-eating ^^'
         print("Cleaning file")
         lines_seen = set()
         with open("temp_" + output, "w") as output_file:
