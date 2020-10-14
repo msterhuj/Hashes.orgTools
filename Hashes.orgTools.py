@@ -70,7 +70,7 @@ def main(download: bool, merge: bool, clean: bool, output: str):
         os.system("python3 Hashes.orgTools.py --help")
     else:
         if output is not None:
-            print(str(sum(1 for None in open(output))) + " : passwords in file")
+            print(str(sum(1 for line in open(output))) + " : passwords in file")
         print("End of app thanks to using me !")
         print("Written by @MsterHuj")
 
