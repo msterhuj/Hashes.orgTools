@@ -2,3 +2,4 @@
 venv/
 *.txt
 /password.db
+!requirements.txt
