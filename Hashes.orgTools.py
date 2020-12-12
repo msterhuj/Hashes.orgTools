@@ -12,7 +12,7 @@ from glob import glob
 @click.option('--output', '-o', help="output file exit")
 def main(download: bool, merge: bool, clean: bool, output: str):
     """
-        Download all wordlist on hashes.org and generate one unique file
+        Download all wordlist on hashes.org and generate one unique file\n
         By @MsterHuj
     """
 
@@ -25,26 +25,29 @@ def main(download: bool, merge: bool, clean: bool, output: str):
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0",
                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                    "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate",
-                   "Referer": "https://temp.hashes.org/", "Connection": "close", "Upgrade-Insecure-Requests": "1"}
+                   "Referer": "https://hashes.org/", "Connection": "close", "Upgrade-Insecure-Requests": "1"}
         session = requests.Session()
         session.headers.update(headers)
 
         leaks = json.loads(
-            session.get("https://temp.hashes.org/api/data.php?select=leaks").content.strip().decode('utf-8'))
+            session.get("https://hashes.org/api/data.php?select=leaks").content.strip().decode('utf-8'))
 
         if not os.path.exists("wordlist/"):
             os.makedirs("wordlist")
 
         # download all leaks
+        leak_current = 1
+        leak_totals = len(leaks)
         for leak in leaks:
             name: str = leak["name"].split("<br>")[0]
-            print("Downloading leak of " + name + ", " + leak["found"] + " passwords")
+            print("(" + str(leak_current) + "/" + str(leak_totals) + ") Downloading leak of " + name + ", " + leak["found"] + " passwords")
             filestream = session.get(
-                "https://temp.hashes.org/download.php?hashlistId={0}&type=found".format(leak["id"]), stream=True)
+                "https://hashes.org/download.php?hashlistId={0}&type=found".format(leak["id"]), stream=True)
             with open("wordlist/" + name + "-" + leak["id"] + ".txt", "wb") as file:
                 for data in filestream.iter_content(chunk_size=1024):
                     if data:
                         file.write(data)
+            leak_current += 1
 
     if merge:
         print("Merging files")
