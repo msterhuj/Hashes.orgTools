@@ -6,13 +6,6 @@ from glob import glob
 import sqlite3
 from progress.bar import Bar
 
-database = sqlite3.connect("password.db")
-database_cursor = database.cursor()
-try:
-    database_cursor.execute("create table password(content varchar not null);")
-    print("Created password table on password.db")
-except sqlite3.OperationalError:
-    print("Table already exists [Skipped]")
 
 @click.command()
 @click.option('--download', '-dl', type=bool, is_flag=True, help="Download all leaks wordlist")
@@ -53,6 +46,16 @@ def main(download: bool, merge: bool, export: str):
             leak_current += 1
 
     if merge:
+        database = sqlite3.connect("password.db")
+        database_cursor = database.cursor()
+        try:
+            database_cursor.execute("create table password(content varchar not null);")
+            database_cursor.execute("create unique index password_unique on password (content);")
+            database.commit()
+            print("Created password table on password.db")
+        except sqlite3.OperationalError:
+            print("Table already exists [Skipped]")
+
         print("Merging files on database and remove duplicate password")
         for url in glob("wordlist/*.txt"):
             name = url.replace("\\", "/").split("/")[1]
@@ -60,20 +63,25 @@ def main(download: bool, merge: bool, export: str):
             bar = Bar(name, max=len(alist))
             for password in alist:
                 try:
-                    database_cursor.execute("insert into password (content) values ('" + password.replace("'", "''") + "');")
-                    database.commit()
+                    database_cursor.execute("insert into password (content) values (?);", (password,))
                 except sqlite3.IntegrityError:
                     pass
                 finally:
                     bar.next()
+            database.commit()
             bar.finish()
+        database.close()
 
     if export:
+        database = sqlite3.connect("password.db")
+        database_cursor = database.cursor()
         print("Exporting password database")
         passwords = database_cursor.execute("select * from password;")
         with open(export, 'w') as f:
             for item in passwords:
                 f.write("%s\n" % item)
+        database.close()
+
 
 if __name__ == '__main__':
     main()

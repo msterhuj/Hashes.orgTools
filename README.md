@@ -22,9 +22,12 @@ Options:
 ## Next update
  * Download only file updated or added
  * Random agent for download
+ * Set max password commit by loop
  * Regex check before add to database
 
 ## Change log
+ * 1.3
+   * commit import password at end of file
  * 1.2
    * replace merger to sqlite database
    * update output to exporter function

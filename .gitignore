@@ -1,5 +1,7 @@
 .idea/
 venv/
 *.txt
-/password.db
+password.db
+test.py
+
 !requirements.txt
